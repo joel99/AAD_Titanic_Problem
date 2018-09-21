@@ -59,4 +59,67 @@ def load_split_all():
     y_train = train_data[:, 0].astype('int')
     return ((x_train, y_train), (x_test, y_test))
 
-# ((train_x, train_y), (test_x, test_y))
+def find_best_SVM():
+    clf = Classifier()
+
+    # param tuning
+    kernals = ['linear', 'poly', 'rbf', 'sigmoid']
+    probabilities = [True, False]
+    gammas = [0.1, 0.25, 0.5, 1, 2, 5]
+    tols = [0.00001, 0.0001, 0.001, 0.01]
+    folds = 5
+
+    best = [kernals[0], probabilities[0], tols[0], gammas[0]]  # list of best params
+    (data, labels) = read_data()
+
+    # block searching for best parameters based on cross validation
+    for k in kernals:
+        gam_irrelevent = k == 'linear'
+        for p in probabilities:
+            for t in tols:
+                for g in gammas:
+                    start = time.time()
+
+                    fps = []  # List of false positives by fold
+                    fns = []  # List of false negatives by fold
+                    for fold in range(folds):
+                        (train_data, train_labels, test_data, test_labels) = make_fold(data, labels, folds, fold)
+
+                        # train model and test on training data
+                        clf.create_SVM(k, p, t, g)
+                        clf.train(train_data, train_labels)
+
+                        # test model
+                        predicted_labels = clf.predict(test_data)
+
+                        # calculate FP and FN
+                        total = len(test_data)
+                        fp = sum([1 for i in range(total) if predicted_labels[i] == 1 and test_labels[i] == 0])
+                        fn = sum([1 for i in range(total) if predicted_labels[i] == 0 and test_labels[i] == 1])
+                        fps += [fp]
+                        fns += [fn]
+
+                    avgFP = sum(fps) / folds
+                    avgFN = sum(fns) / folds
+                    score = (avgFP + avgFN) / 2
+
+                    # document best model
+                    if score > max:
+                        max = score
+                        best = [k, p, t, g]
+                    print("Params\nk: %s\tp: %s\tt: %f\tg: %f" % (k, p, t, g))
+                    print("Avg FP: %f\tAVG FN: %f\ttotal: %d" % (avgFP, avgFN, len(data)))
+                    print("Best Avg Score: %f" % max)
+                    print("*********************************************")
+
+                    # only change gamma if it is relavent (SVM specific)
+                    if gam_irrelevent:
+                        break
+
+        # return best model
+        return clf.create_SVM(best[0], best[1], best[2], best[3])
+
+def driver():
+    train, test = read_split_all()
+    train_x, train_y = train
+    test_x, test_y = test

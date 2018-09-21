@@ -1,0 +1,24 @@
+Feature Engineering:
+  Columns we select:
+  Survival (for converting to label)
+  Sex - transform into 0/1
+  Age
+  Sibsp
+  Parch
+
+TODO List:
+  Create function that iterates over hyperparams to find best classifier, scoring based on cross_val mean with false positives and false negative 
+  Feature engineer
+  Create function that plugs in trained classifiers, generate score with false positives and false negatives, create graph with pareto front
+  
+
+  final driver:
+    feature engineer
+      - decided to keep:
+        - survived, pclass, sex, age, sibsp, parch, ticket, fare, (embarked)
+  
+    method call each hyperparam optimizer per classifier using cross_val_score
+      - returns untrained model with suggested hyperparams
+    we have a list of final params, train on entire train set
+
+    functions that plug in trained classifier, create graphs
