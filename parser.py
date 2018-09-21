@@ -102,7 +102,8 @@ def find_best_SVM(data, labels):
                         break
 
         # return best model
-        return clf.create_SVM(best[0], best[1], best[2], best[3])
+        clf.create_SVM(best[0], best[1], best[2], best[3])
+        return clf.classifier
 
 def driver():
     train, test = read_split_all()
