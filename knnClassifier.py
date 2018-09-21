@@ -8,8 +8,8 @@ from parser import load_split_all
 
 def knn_classifier():
     
-    # This is a comment
-	knn = KNeighborsClassifier(n_neighbors=18)
+    
+    knn = KNeighborsClassifier(n_neighbors=18)
     x_train, X_test, y_train, Y_test = load_split_all()
     
     cv_scores = []
