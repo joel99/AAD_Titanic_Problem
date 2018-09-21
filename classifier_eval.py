@@ -5,7 +5,7 @@
 #######################
 
 import numpy as np
-from img_classifier import ImageClassifier
+from classifier import Classifier
 import re
 from sklearn import svm, metrics
 from skimage import io, feature, filters, exposure, color
@@ -17,7 +17,7 @@ from PIL import Image
 import time
  
 def main():
-    img_clf = ImageClassifier()
+    img_clf = Classifier()
     start_true = time.time()
     
     #param tuning

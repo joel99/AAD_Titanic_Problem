@@ -12,7 +12,7 @@ from skimage import io, feature, filters, exposure, color
 from skimage.feature import hog
 from sklearn.externals import joblib
 
-class ImageClassifier:
+class Classifier:
 
     def __init__(self):
         self.classifier = None
@@ -31,13 +31,20 @@ class ImageClassifier:
             labels[i] = f[len(dir):m.start()]
 
         return(data,labels)
-
-    def train_classifier(self, train_data, train_labels):
-        # Please do not modify the header above
-
+    
+    # model for the train_classifier methods, each classifier should get their own methods
+    # take in classifier params as input variables
+    def train_classifier_SVM(self, train_data, train_labels, kernal, probability, tol, gamma):
+        # Overwrite the classifier and train it to be an SVM with the given params
+        # params: 
+        # kernal(string)
+        # gamma(float)
+        # probability (bool)
+        # tol (float)
+        
         # train model and save the trained model to self.classifier
-        self.classifier = svm.SVC(kernel = "linear")
-        self.classifier.fit(list(train_data), train_labels)
+        self.classifier = svm.SVC(kernel=kernal, gamma=gamma, probability=probability, tol=tol)
+        self.classifier.fit(train_data, train_labels)
 
         return None
 
