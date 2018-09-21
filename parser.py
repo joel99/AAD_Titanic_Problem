@@ -43,4 +43,5 @@ def load_split_all():
     xtr, xte, ytr, yte = train_test_split(x_train, y_train)
     # kf = KFold(n_splits=folds)
     # indices = kf.split(train_data, test_data)
-    return xtr, xte, ytr, yte # Ideally would like an interface to request organized data
+    # return xtr, xte, ytr, yte # Ideally would like an interface to request organized data
+    return np.concatenate((xtr, xte), axis = 0), np.concatenate((ytr, yte), axis = 0)
