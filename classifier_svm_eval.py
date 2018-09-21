@@ -36,15 +36,7 @@ def main():
     file.write(heading)
     file.close()
     
-    # Read in data from CSV files using pandas library
-    train_labels_raw = pd.read_csv(path + "train.csv",usecols=[1]).values
-    test_labels_raw = pd.read_csv(path + "gender_submission.csv",usecols=[1]).values
-    train_data_raw = pd.read_csv(path + "train.csv",usecols=[0,2,3,4,5,6,7,8,9,10,11]).values
-    test_data_raw = pd.read_csv(path + "test.csv").values
-    
-    data = np.array(list(train_data_raw) + list(test_data_raw))
-    labels = np.array(list(train_labels_raw) + list(test_labels_raw))
-    labels = np.array([l[0] for l in labels])
+    (data, labels) = read_data()
 
     # block searching for best parameters based on cross validation
     for k in kernals:
@@ -59,22 +51,9 @@ def main():
                     fps = [] # List of false positives by fold
                     fns = [] # List of false negatives by fold
                     for fold in range(folds):
-                        train_data = []
-                        test_data = []
-                        train_labels = []
-                        test_labels = []
-                        #rearange data by fold
-                        for i in range(len(data)):
-                            if i%folds == fold:
-                                test_data += [data[i]]
-                                test_labels += [labels[i]]
-                            else:
-                                train_data += [data[i]]
-                                train_labels += [labels[i]]
+                        (train_data, train_labels, test_data, test_labels) = make_fold(data,labels,folds,fold)
                     
                         # train model and test on training data
-                        print(len(labels))
-                        print(type(labels[0]))
                         clf.train_classifier_SVM(train_data, train_labels, k, p, t, g)
 
                         # document train time
@@ -86,7 +65,7 @@ def main():
                         # test model
                         predicted_labels = clf.predict_labels(test_data)
                         
-                        
+                        # display testing results
                         print("Testing results:")
                         print("=============================")
                         print("Accuracy: ", metrics.accuracy_score(test_labels, predicted_labels))
@@ -129,9 +108,8 @@ def main():
         #save model with best avg accuracy
         print("Saving best model")
         print("PARAMS:\nKernal: %s\tProb: %s\tTol: %f\tGamma: %f" %(best[0],best[1],best[2],best[3]))
-        all_data = train_data_raw + test_data_raw
-        all_labels = train_labels_raw + test_labels_raw
-        clf.train_classifier(all_data,data_labels,best[0],best[1],best[2],best[3])
+        (all_data, all_labels) = read_data()
+        clf.train_classifier(all_data,all_labels,best[0],best[1],best[2],best[3])
         clf.save("./models/best.pkl")
         f = open("./models/best.txt", 'w')
         f.write("Best configuration\nK: %s\tP: %s\tT: %f\tG: %f" %(best[0],best[1],best[2],best[3]))
@@ -143,18 +121,47 @@ def main():
 if __name__ == "__main__":
     main()
 
-def read_data(sel):
+def read_data():
+    # turns the data into a list of data and lables
 
-    train_labels_raw = pd.read_csv(path + "train.csv",usecols=[1]).values
-    test_labels_raw = pd.read_csv(path + "gender_submission.csv",usecols=[1]).values
-    train_data_raw = pd.read_csv(path + "train.csv",usecols=[0,2,3,4,5,6,7,8,9,10,11]).values
-    test_data_raw = pd.read_csv(path + "test.csv").values
+    train_labels = pd.read_csv(path + "train.csv",usecols=[1]).values
+    test_labels = pd.read_csv(path + "gender_submission.csv",usecols=[1]).values
+    train_data = pd.read_csv(path + "train.csv",usecols=[0,2,3,4,5,6,7,8,9,10,11]).values
+    test_data = pd.read_csv(path + "test.csv").values
 
-    data = np.array(list(train_data_raw) + list(test_data_raw))
-    labels = np.array(list(train_labels_raw) + list(test_labels_raw))
+    data = np.array(list(train_data) + list(test_data))
+    labels = np.array(list(train_labels) + list(test_labels))
     labels = np.array([l[0] for l in labels])
 
-
-
+    #does not handle strings
     return (data, labels)
+
+def filter_strings(data):
+    # returns the data with the strings changed
+    # replaces None with -1
+    # replace "male" and "female" with 0 and 1 respectively
+    # replaces all letters with their location in the alphabet (i.e. 'a' -> 0, 'ab' -> 01)
+    for line in data:
+        for i in range(len(data)):
+
+
+def make_fold(data, labels, total, sel):
+    # turns data and labels into train and test sets
+    # total -> total number of folds (fraction of data used for test)
+    # sel -> which portion of data will be test data
+    train_data = []
+    test_data = []
+    train_labels = []
+    test_labels = []
+    # rearange data by fold
+    for i in range(len(data)):
+        if i % total == sel:
+            test_data += [data[i]]
+            test_labels += [labels[i]]
+        else:
+            train_data += [data[i]]
+            train_labels += [labels[i]]
+
+    return (train_data, train_labels, test_data, test_labels)
+
 
