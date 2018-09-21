@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="97d57b2a-9a96-430c-8b50-62083dd192df" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifier_svm_eval.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifier_svm_eval.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/parser.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -22,12 +20,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="1429" />
+          <entry key="py" value="2067" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="1429" />
+          <entry key="Python" value="2067" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -48,7 +46,7 @@
         <entry file="file://$PROJECT_DIR$/classifier.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="202">
-              <caret line="19" column="28" lean-forward="true" selection-start-line="19" selection-start-column="28" selection-end-line="19" selection-end-column="28" />
+              <caret line="19" column="28" selection-start-line="19" selection-start-column="28" selection-end-line="19" selection-end-column="28" />
               <folding>
                 <element signature="e#121#139#0" expanded="true" />
               </folding>
@@ -68,10 +66,9 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/classifier_svm_eval.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="76" lean-forward="true" selection-start-line="17" selection-end-line="76" />
+            <state relative-caret-position="136">
+              <caret line="8" column="8" selection-start-line="8" selection-end-line="9" />
               <folding>
-                <element signature="e#96#114#0" expanded="true" />
                 <marker date="1537567215064" expanded="true" signature="3398:3403" ph="..." />
                 <marker date="1537567215064" expanded="true" signature="3398:3701" ph="..." />
                 <marker date="1537567215064" expanded="true" signature="3741:3746" ph="..." />
@@ -84,8 +81,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/parser.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-272">
-              <caret line="26" column="18" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="18" />
+            <state relative-caret-position="850">
+              <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
+              <folding>
+                <element signature="e#155#174#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -222,7 +222,7 @@
     <entry file="file://$PROJECT_DIR$/classifier.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="202">
-          <caret line="19" column="28" lean-forward="true" selection-start-line="19" selection-start-column="28" selection-end-line="19" selection-end-column="28" />
+          <caret line="19" column="28" selection-start-line="19" selection-start-column="28" selection-end-line="19" selection-end-column="28" />
           <folding>
             <element signature="e#121#139#0" expanded="true" />
           </folding>
@@ -231,10 +231,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/classifier_svm_eval.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="76" lean-forward="true" selection-start-line="17" selection-end-line="76" />
+        <state relative-caret-position="136">
+          <caret line="8" column="8" selection-start-line="8" selection-end-line="9" />
           <folding>
-            <element signature="e#96#114#0" expanded="true" />
             <marker date="1537567215064" expanded="true" signature="3398:3403" ph="..." />
             <marker date="1537567215064" expanded="true" signature="3398:3701" ph="..." />
             <marker date="1537567215064" expanded="true" signature="3741:3746" ph="..." />
@@ -245,8 +244,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/parser.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-272">
-          <caret line="26" column="18" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="18" />
+        <state relative-caret-position="850">
+          <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
+          <folding>
+            <element signature="e#155#174#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

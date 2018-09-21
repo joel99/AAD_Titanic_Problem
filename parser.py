@@ -10,7 +10,8 @@ Joel Ye
 """
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import KFold, train_test_split
+from sklearn.model_selection import KFold, train_test_split, cross_val_score
+from sklearn.metrics import precision_score, recall_score
 from sklearn.preprocessing import LabelEncoder
 from classifier import Classifier
 data_dir = 'data/'
@@ -50,7 +51,7 @@ def load_split_all():
 def find_best_SVM(data, labels):
     clf = Classifier()
 
-    # param tuning
+    # param tuning SVM specific
     kernals = ['linear', 'poly', 'rbf', 'sigmoid']
     probabilities = [True, False]
     gammas = [0.1, 0.25, 0.5, 1, 2, 5]
@@ -65,37 +66,22 @@ def find_best_SVM(data, labels):
         for p in probabilities:
             for t in tols:
                 for g in gammas:
-                    start = time.time()
+                    #create and score classifier with given hyperparameters
+                    clf.create_SVM(k, p, t, g)
+                    precision = cross_val_score(clf.classifier, data, labels, scoring=precision_score)
+                    recall = cross_val_score(clf.classifier, data, labels, scoring=recall_score)
+                    precision = sum(precision)/len(precision)
+                    recall = sum(recall)/len(recall)
+                    score = (recall + precision) / 2
 
-                    fps = []  # List of false positives by fold
-                    fns = []  # List of false negatives by fold
-                    for fold in range(folds):
-                        (train_data, train_labels, test_data, test_labels) = make_fold(data, labels, folds, fold)
-
-                        # train model and test on training data
-                        clf.create_SVM(k, p, t, g)
-                        clf.train(train_data, train_labels)
-
-                        # test model
-                        predicted_labels = clf.predict(test_data)
-
-                        # calculate FP and FN
-                        total = len(test_data)
-                        fp = sum([1 for i in range(total) if predicted_labels[i] == 1 and test_labels[i] == 0])
-                        fn = sum([1 for i in range(total) if predicted_labels[i] == 0 and test_labels[i] == 1])
-                        fps += [fp]
-                        fns += [fn]
-
-                    avgFP = sum(fps) / folds
-                    avgFN = sum(fns) / folds
-                    score = (avgFP + avgFN) / 2
-
-                    # document best model
+                    # keep track of best hyperparameters
                     if score > max:
                         max = score
                         best = [k, p, t, g]
+
+                    # document performance
                     print("Params\nk: %s\tp: %s\tt: %f\tg: %f" % (k, p, t, g))
-                    print("Avg FP: %f\tAVG FN: %f\ttotal: %d" % (avgFP, avgFN, len(data)))
+                    print("Precision: %f\tRecall: %f" % (precision, recall))
                     print("Best Avg Score: %f" % max)
                     print("*********************************************")
 
