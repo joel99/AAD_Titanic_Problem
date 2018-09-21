@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.preprocessing import LabelEncoder
-    
+from classifier import Classifier
 data_dir = 'data/'
 train_fn = 'train.csv'
 test_fn = 'test.csv'
@@ -59,7 +59,7 @@ def load_split_all():
     y_train = train_data[:, 0].astype('int')
     return ((x_train, y_train), (x_test, y_test))
 
-def find_best_SVM():
+def find_best_SVM(data, labels):
     clf = Classifier()
 
     # param tuning
@@ -70,7 +70,6 @@ def find_best_SVM():
     folds = 5
 
     best = [kernals[0], probabilities[0], tols[0], gammas[0]]  # list of best params
-    (data, labels) = read_data()
 
     # block searching for best parameters based on cross validation
     for k in kernals:
