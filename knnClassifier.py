@@ -21,12 +21,12 @@ def knn_classifier():
         cv_scores.append(scores.mean())
     # changing to misclassification error
     MSE = [1 - x for x in cv_scores]
-    print cv_scores
+    print(cv_scores)
 #     determining best k
     optimal_k = neighbors[MSE.index(min(MSE))]
-    print "The optimal number of neighbors is %d" % optimal_k
-    print MSE.index(min(MSE))
-    print "Optimal score is " + str(max(cv_scores))
+    print("The optimal number of neighbors is %d" % optimal_k)
+    print(MSE.index(min(MSE)))
+    print("Optimal score is " + str(max(cv_scores)))
 #     plot misclassification error vs k
     plt.plot(neighbors, MSE)
     plt.xlabel('Number of Neighbors K')
