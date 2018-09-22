@@ -15,6 +15,7 @@ from sklearn.metrics import precision_score, recall_score
 from sklearn.preprocessing import LabelEncoder
 from classifier import Classifier
 from rfClassifier import find_best_rf
+import matplotlib.pyplot as plt
 data_dir = 'data/'
 train_fn = 'train.csv'
 test_fn = 'test.csv'
@@ -64,19 +65,20 @@ def load_split_all():
 
 def find_best_SVM(data, labels):
     clf = Classifier()
+    (fig, ax, x, y) = init_graph()
 
     # param tuning SVM specific 192 - 5 = 187 combinations
-    kernals = ['linear', 'poly', 'rbf', 'sigmoid']
+    kernels = ['linear', 'poly', 'rbf', 'sigmoid']
     probabilities = [True, False]
     gammas = [0.1, 0.25, 0.5, 1, 2, 5]
     tols = [0.00001, 0.0001, 0.001, 0.01]
     folds = 5
 
-    best = [kernals[0], probabilities[0], tols[0], gammas[0]]  # list of best params
+    front = [[(10**10,10*10),(kernels[0], probabilities[0], tols[0], gammas[0])]]  # list of best scores & params
 
     # block searching for best parameters based on cross validation
-    for k in kernals:
-        gam_irrelevent = k == 'linear'
+    for k in kernels:
+        gam_irrelevant = k == 'linear'
         for p in probabilities:
             for t in tols:
                 for g in gammas:
@@ -84,38 +86,97 @@ def find_best_SVM(data, labels):
                     clf.create_SVM(k, p, t, g)
                     score = score(clf.classifier, data, labels)
 
-                    # keep track of best hyperparameters
-                    if score > max:
-                        max = score
-                        best = [k, p, t, g]
+                    # keep track of paretofront
+                    ind = [score, (k,p,t,g)]
+                    front = update_front(front, ind)
 
                     # document performance
                     print("Params\nk: %s\tp: %s\tt: %f\tg: %f" % (k, p, t, g))
                     print("Score: %f" % (score))
-                    print("Best Avg Score: %f" % max)
                     print("*********************************************")
 
+                    # update graph
+                    update_graph(fig, ax, front, x, y)
+
                     # only change gamma if it is relavent (SVM specific)
-                    if gam_irrelevent:
+                    if gam_irrelevant:
                         break
 
-        # return best model
-        clf.create_SVM(best[0], best[1], best[2], best[3])
-        return clf.classifier
+        # return pareto front classifiers
+        return generate_SVM_front(clf, front)
 
 def score(clf, data, labels):
     precision = cross_val_score(clf.classifier, data, labels, scoring=precision_score)
     recall = cross_val_score(clf.classifier, data, labels, scoring=recall_score)
     precision = sum(precision) / len(precision)
     recall = sum(recall) / len(recall)
-    score = (recall + precision) / 2
 
-    return score
+    return (precision, recall)
+
+# returns true if ind1 dominates ind2
+def pareto_dominance(ind1, ind2):
+    not_equal = False
+    for value_1, value_2 in zip(ind1.fitness.values, ind2.fitness.values):
+        if value_1 > value_2:
+            return False
+        elif value_1 < value_2:
+            not_equal = True
+    return not_equal
+
+def update_front(front, ind):
+    all = front + [ind]
+
+    front = []
+    for ind1 in all:
+        pareto = True
+        for ind2 in front:
+            if pareto_dominance(ind2[0],ind1[0]):
+                # ind1 cannot belong on the pareto front
+                pareto = False
+                break
+            elif pareto_dominance(ind1[0],ind2[0]):
+                #ind1 belongs on pareto front and ind2 does not
+                front.remove(ind2)
+        if pareto:
+            front += [ind1]
+    return front
+
+def generate_SVM_front(clf, front):
+    models = []
+    for ind in front:
+        clf.make_SVM(ind[1][0], ind[1][1], ind[1][2], ind[1][3])
+        models += [clf.classifier]
+    return models
+
+def init_graph():
+    plt.ion()
+    fig, ax = plt.subplots()
+    x, y = [], []
+    sc = ax.scatter(x, y)
+    plt.xlim(0.0, 1.0)
+    plt.ylim(0.0, 1.0)
+    plt.xlabel('Precision')
+    plt.ylabel('Recall')
+
+    plt.draw()
+    plt.show()
+    return (fig, sc, x, y)
+
+def update_graph(fig, sc, front, x, y):
+    x.clear()
+    y.clear()
+    x.append([ind[0][0] for ind in front])
+    y.append([ind[0][1] for ind in front])
+    sc.set_offsets(np.c_[x, y])
+    fig.canvas.draw_idle()
+    plt.pause(0.1)
 
 def driver():
     train, test = load_split_all()
     train_x, train_y = train
     test_x, test_y = test
     best_rf = find_best_rf(train_x, train_y)
+    svm_front = find_best_SVM(train_x, train_y)
+    plt.waitforbuttonpress()
 
 driver()
