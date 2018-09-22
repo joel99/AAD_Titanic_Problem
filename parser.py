@@ -81,24 +81,41 @@ def score(clf, data, labels):
 
     return (precision, recall)
 
-def pareto_dominance(ind1, ind2):
+def pareto_dominance_max(ind1, ind2):
     """
-    returns true if ind1 dominates ind2
+    returns true if ind1 dominates ind2 by the metrics that should be maximized
 
     :param ind1: tuple of precision and recall scores
     :param ind2: tuple of precision and recall scores
-    :return: boolean representing if ind1 dominates ind2
+    :return: boolean representing if ind1 dominates ind2 using metrics that should be maximized
     """
 
     not_equal = False
     for value_1, value_2 in zip(ind1.fitness.values, ind2.fitness.values):
         if value_1 > value_2:
             return False
+        elif value_1 > value_2:
+            not_equal = True
+    return not_equal
+
+def pareto_dominance_min(ind1, ind2):
+    """
+    returns true if ind1 dominates ind2 by the metrics that should be minimized
+
+    :param ind1: tuple of precision and recall scores
+    :param ind2: tuple of precision and recall scores
+    :return: boolean representing if ind1 dominates ind2 using the metrics that should be minimized
+    """
+
+    not_equal = False
+    for value_1, value_2 in zip(ind1.fitness.values, ind2.fitness.values):
+        if value_1 < value_2:
+            return False
         elif value_1 < value_2:
             not_equal = True
     return not_equal
 
-def update_front(front, ind):
+def update_front(front, ind, comp):
     """
     Makes a new pareto front out of the old pareto front and new individual
     In this context an individual consists of scores and their hyper parameters
@@ -107,6 +124,7 @@ def update_front(front, ind):
 
     :param front: the old pareto front to be updated
     :param ind: the new individual that may or may not change the old pareto front
+    :param comp: the method used to compare individuals as being pareto dominant or not
     :return: the new pareto front
     """
 
@@ -116,11 +134,11 @@ def update_front(front, ind):
     for ind1 in all:
         pareto = True
         for ind2 in front:
-            if pareto_dominance(ind2[0],ind1[0]):
+            if comp(ind2[0],ind1[0]):
                 # ind1 cannot belong on the pareto front
                 pareto = False
                 break
-            elif pareto_dominance(ind1[0],ind2[0]):
+            elif comp(ind1[0],ind2[0]):
                 #ind1 belongs on pareto front and ind2 does not
                 front.remove(ind2)
         if pareto:

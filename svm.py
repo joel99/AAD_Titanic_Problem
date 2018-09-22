@@ -28,7 +28,7 @@ def find_best_SVM(data, labels):
 
                     # keep track of paretofront
                     ind = [score, (k,p,t,g)]
-                    front = parser.update_front(front, ind)
+                    front = parser.update_front(front, ind, parser.pareto_dominance_pre_rec)
 
                     # document performance
                     print("Params\nk: %s\tp: %s\tt: %f\tg: %f" % (k, p, t, g))
