@@ -10,14 +10,15 @@ Joel Ye
 """
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import KFold, train_test_split, cross_val_score
+from sklearn.model_selection import cross_val_score
 from sklearn.metrics import precision_score, recall_score
 from sklearn.preprocessing import LabelEncoder
 from classifier import Classifier
+from rfClassifier import find_best_rf
 data_dir = 'data/'
 train_fn = 'train.csv'
 test_fn = 'test.csv'
-test_y_fn = 'gender_submission.csv'
+test_label_fn = 'gender_submission.csv'
 folds = 5
 
 def load_data(filename):
@@ -37,23 +38,24 @@ def load_split_all():
     # Convert sex column (col 4)
     le.fit(["male", "female"])
     train_data[:, 4] = le.transform(train_data[:, 4])
-    test_data[:, 3] = le.transform(train_data[:, 3])
+    test_data[:, 3] = le.transform(test_data[:, 3])
     # Convert embark column (col 11)
-    le.fit(["S", "C", "Q"])
-    train_data[:, 11] = le.transform(train_data[:, 11])
-    test_data[:, 10] = le.transform(train_data[:, 10])
+    # le.fit(["S", "C", "Q", None])
+    # print(train_data[:, 11])
+    # train_data[:, 11] = le.transform(train_data[:, 11])
+    # test_data[:, 10] = le.transform(test_data[:, 10])
     
     # Feature selection:
     # Trim passenger_id (c0), name (c3), ticket number (c8), cabin number (c10)
     # As we're unsure about cabin_number domain effect, we're just dropping it
-    train_data = np.delete(train_data, [0, 3, 8, 10], axis = 1)
-    test_data = np.delete(train_data, [0, 2, 7, 9], axis = 1)
+    # Dropping embark since we think it's not too helpful, and has NaN
+    train_data = np.delete(train_data, [0, 3, 8, 10, 11], axis = 1)
+    test_data = np.delete(train_data, [0, 2, 7, 9, 10], axis = 1)
     
-    # Drop NaN rows - we have to drop corresponding rows test_data, test_labels
-    keep_mask = np.copy(~pd.isnull(train_data).any(axis=1))
-    train_data = train_data[keep_mask]
-    x_test = test_data[keep_mask]
-    y_test = test_labels[keep_mask] 
+    # Fill in NaN
+    train_data = np.where(pd.isnull(train_data), -1, train_data)
+    x_test = np.where(pd.isnull(test_data), -1, test_data)
+    y_test = test_labels
 
     # Separate train_data into x and y
     x_train = train_data[:, 1:].astype('float')
@@ -101,11 +103,6 @@ def find_best_SVM(data, labels):
         clf.create_SVM(best[0], best[1], best[2], best[3])
         return clf.classifier
 
-def driver():
-    train, test = load_split_all()
-    train_x, train_y = train
-    test_x, test_y = test
-
 def score(clf, data, labels):
     precision = cross_val_score(clf.classifier, data, labels, scoring=precision_score)
     recall = cross_val_score(clf.classifier, data, labels, scoring=recall_score)
@@ -114,3 +111,11 @@ def score(clf, data, labels):
     score = (recall + precision) / 2
 
     return score
+
+def driver():
+    train, test = load_split_all()
+    train_x, train_y = train
+    test_x, test_y = test
+    best_rf = find_best_rf(train_x, train_y)
+
+driver()
