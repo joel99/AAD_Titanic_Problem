@@ -143,6 +143,7 @@ def filter_strings(data):
     # replaces all letters with their location in the alphabet (i.e. 'a' -> 0, 'ab' -> 01)
     for line in data:
         for i in range(len(data)):
+            i = i
 
 
 def make_fold(data, labels, total, sel):
