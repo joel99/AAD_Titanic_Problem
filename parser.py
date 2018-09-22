@@ -63,49 +63,17 @@ def load_split_all():
     y_train = train_data[:, 0].astype('int')
     return ((x_train, y_train), (x_test, y_test))
 
-def find_best_SVM(data, labels):
-    clf = Classifier()
-    (fig, ax, x, y) = init_graph()
-
-    # param tuning SVM specific 192 - 5 = 187 combinations
-    kernels = ['linear', 'poly', 'rbf', 'sigmoid']
-    probabilities = [True, False]
-    gammas = [0.1, 0.25, 0.5, 1, 2, 5]
-    tols = [0.00001, 0.0001, 0.001, 0.01]
-    folds = 5
-
-    front = [[(10**10,10*10),(kernels[0], probabilities[0], tols[0], gammas[0])]]  # list of best scores & params
-
-    # block searching for best parameters based on cross validation
-    for k in kernels:
-        gam_irrelevant = k == 'linear'
-        for p in probabilities:
-            for t in tols:
-                for g in gammas:
-                    #create and score classifier with given hyperparameters
-                    clf.create_SVM(k, p, t, g)
-                    score = score(clf.classifier, data, labels)
-
-                    # keep track of paretofront
-                    ind = [score, (k,p,t,g)]
-                    front = update_front(front, ind)
-
-                    # document performance
-                    print("Params\nk: %s\tp: %s\tt: %f\tg: %f" % (k, p, t, g))
-                    print("Score: %f" % (score))
-                    print("*********************************************")
-
-                    # update graph
-                    update_graph(fig, ax, front, x, y)
-
-                    # only change gamma if it is relavent (SVM specific)
-                    if gam_irrelevant:
-                        break
-
-        # return pareto front classifiers
-        return generate_SVM_front(clf, front)
 
 def score(clf, data, labels):
+    """
+    calculates the precision and recall for the given classifier on the given set of data and labels
+
+    :param clf: untrained classifier to be evaluated
+    :param data: the dataset used for cross validation
+    :param labels: the correct labels that match with the given data
+    :return: a tuple of the precision and recall scores for the given classifier
+    """
+
     precision = cross_val_score(clf.classifier, data, labels, scoring=precision_score)
     recall = cross_val_score(clf.classifier, data, labels, scoring=recall_score)
     precision = sum(precision) / len(precision)
@@ -113,8 +81,15 @@ def score(clf, data, labels):
 
     return (precision, recall)
 
-# returns true if ind1 dominates ind2
 def pareto_dominance(ind1, ind2):
+    """
+    returns true if ind1 dominates ind2
+
+    :param ind1: tuple of precision and recall scores
+    :param ind2: tuple of precision and recall scores
+    :return: boolean representing if ind1 dominates ind2
+    """
+
     not_equal = False
     for value_1, value_2 in zip(ind1.fitness.values, ind2.fitness.values):
         if value_1 > value_2:
@@ -124,6 +99,17 @@ def pareto_dominance(ind1, ind2):
     return not_equal
 
 def update_front(front, ind):
+    """
+    Makes a new pareto front out of the old pareto front and new individual
+    In this context an individual consists of scores and their hyper parameters
+    For example ind[0] is a tuple of precision and recall scores
+    and ind[1] is a list of the hyper-parameters needed to recreate the classifier
+
+    :param front: the old pareto front to be updated
+    :param ind: the new individual that may or may not change the old pareto front
+    :return: the new pareto front
+    """
+
     all = front + [ind]
 
     front = []
@@ -141,14 +127,19 @@ def update_front(front, ind):
             front += [ind1]
     return front
 
-def generate_SVM_front(clf, front):
-    models = []
-    for ind in front:
-        clf.make_SVM(ind[1][0], ind[1][1], ind[1][2], ind[1][3])
-        models += [clf.classifier]
-    return models
-
 def init_graph():
+    """
+    Creates a matplotlib.pyplot scatter graph that can be continuously updated
+    as new pareto fronts are made
+    ues the plt.waitforbuttonpress() method to keep the graph displayed
+    after it is finished being updated
+
+    :param Fig: the figure being displayed
+    :param Sc: the scatterplot displayed on the graph
+    :param X: the list of x-axis coordinates being graphed
+    :param Y: the list of y-axis coordinates being graphed
+    :return: a list of variables needed to update the graph.
+    """
     plt.ion()
     fig, ax = plt.subplots()
     x, y = [], []
@@ -163,6 +154,20 @@ def init_graph():
     return (fig, sc, x, y)
 
 def update_graph(fig, sc, front, x, y):
+    """
+    updates the given figure to display the given pareto front
+
+    :param fig: the figure being displayed
+    :param sc: the scatter plot associated with the figure
+    :param front: the list of individuals being graphed.
+                  In this context an individual consists of scores and their hyper parameters.
+                  For example ind[0] is a tuple of precision and recall scores
+                  and ind[1] is a list of the hyper-parameters needed to recreate the classifier
+    :param x: the list of x-axis coordinates associated with the graph
+    :param y: the list of y-axis coordinates associated with the graph
+    :return:
+    """
+
     x.clear()
     y.clear()
     x.append([ind[0][0] for ind in front])
@@ -170,13 +175,3 @@ def update_graph(fig, sc, front, x, y):
     sc.set_offsets(np.c_[x, y])
     fig.canvas.draw_idle()
     plt.pause(0.1)
-
-def driver():
-    train, test = load_split_all()
-    train_x, train_y = train
-    test_x, test_y = test
-    best_rf = find_best_rf(train_x, train_y)
-    svm_front = find_best_SVM(train_x, train_y)
-    plt.waitforbuttonpress()
-
-driver()
