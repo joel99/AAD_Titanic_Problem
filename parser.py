@@ -106,10 +106,8 @@ def find_best_SVM(data, labels):
         return generate_SVM_front(clf, front)
 
 def score(clf, data, labels):
-    precision = cross_val_score(clf.classifier, data, labels, scoring=precision_score)
-    recall = cross_val_score(clf.classifier, data, labels, scoring=recall_score)
-    precision = sum(precision) / len(precision)
-    recall = sum(recall) / len(recall)
+    precision = cross_val_score(clf.classifier, data, labels, scoring=precision_score).mean()
+    recall = cross_val_score(clf.classifier, data, labels, scoring=recall_score).mean()
 
     return (precision, recall)
 
