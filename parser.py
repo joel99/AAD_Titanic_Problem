@@ -63,7 +63,7 @@ def load_split_all():
 def find_best_SVM(data, labels):
     clf = Classifier()
 
-    # param tuning SVM specific
+    # param tuning SVM specific 192 - 5 = 187 combinations
     kernals = ['linear', 'poly', 'rbf', 'sigmoid']
     probabilities = [True, False]
     gammas = [0.1, 0.25, 0.5, 1, 2, 5]
@@ -80,11 +80,7 @@ def find_best_SVM(data, labels):
                 for g in gammas:
                     #create and score classifier with given hyperparameters
                     clf.create_SVM(k, p, t, g)
-                    precision = cross_val_score(clf.classifier, data, labels, scoring=precision_score)
-                    recall = cross_val_score(clf.classifier, data, labels, scoring=recall_score)
-                    precision = sum(precision)/len(precision)
-                    recall = sum(recall)/len(recall)
-                    score = (recall + precision) / 2
+                    score = score(clf.classifier, data, labels)
 
                     # keep track of best hyperparameters
                     if score > max:
@@ -93,7 +89,7 @@ def find_best_SVM(data, labels):
 
                     # document performance
                     print("Params\nk: %s\tp: %s\tt: %f\tg: %f" % (k, p, t, g))
-                    print("Precision: %f\tRecall: %f" % (precision, recall))
+                    print("Score: %f" % (score))
                     print("Best Avg Score: %f" % max)
                     print("*********************************************")
 
@@ -106,6 +102,15 @@ def find_best_SVM(data, labels):
         return clf.classifier
 
 def driver():
-    train, test = read_split_all()
+    train, test = load_split_all()
     train_x, train_y = train
     test_x, test_y = test
+
+def score(clf, data, labels):
+    precision = cross_val_score(clf.classifier, data, labels, scoring=precision_score)
+    recall = cross_val_score(clf.classifier, data, labels, scoring=recall_score)
+    precision = sum(precision) / len(precision)
+    recall = sum(recall) / len(recall)
+    score = (recall + precision) / 2
+
+    return score
