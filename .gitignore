@@ -106,3 +106,6 @@ venv.bak/
 # idea folder for pycharm
 .idea/
 
+# docs folder for Aaron's documentation experiments
+docs/
+

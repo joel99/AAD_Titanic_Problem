@@ -12,7 +12,6 @@ def find_best_knn(data, labels):
     neighbors = list(range(1,50))
     for k in neighbors:
         knn = KNeighborsClassifier(n_neighbors=k)
-        knn.fit(x_train, y_train)
         scores = cross_vals_score(clf, data, labels, scoring=make_scorer(precision_score))
         cv_scores.append(scores.mean())
     # changing to misclassification error

@@ -24,8 +24,11 @@ class Classifier:
         
         # train model and save the trained model to self.classifier
         self.classifier = svm.SVC(kernel=kernal, gamma=gamma, probability=probability, tol=tol)
-
         return None
+
+    def make_Gaussian(self, priors):
+        self.classifier = GaussianNB(priors = priors)
+
 
     def train(self, data, labels):
         # trains the classifier by calling the fit function

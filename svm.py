@@ -5,42 +5,42 @@ from sklearn import svm
 
 def find_best_SVM(data, labels):
     clf = svm.SVC()
-    (fig, ax, x, y) = parser.init_graph()
+    (fig, sc) = parser.init_graph()
 
     # param tuning SVM specific 192 - 5 = 187 combinations
-    kernels = ['linear', 'poly', 'rbf', 'sigmoid']
+    kernels = ['poly', 'rbf', 'sigmoid']
+    #kernels = ['rbf']
     probabilities = [True, False]
-    gammas = [0.1, 0.25, 0.5, 1, 2, 5]
+    #probabilities=[False]
     tols = [0.00001, 0.0001, 0.001, 0.01]
+    tols = [0.001]
     folds = 5
 
-    front = [[(10**10,10*10),(kernels[0], probabilities[0], tols[0], gammas[0])]]  # list of best scores & params
+    front = [[(10**10,10*10),(kernels[0], probabilities[0], tols[0])]]  # list of best scores & params
 
     # block searching for best parameters based on cross validation
     for k in kernels:
-        gam_irrelevant = k == 'linear'
         for p in probabilities:
             for t in tols:
-                for g in gammas:
+                    print("Params\nk: %s\tp: %s\tt: %f" % (k, p, t))
+
                     #create and score classifier with given hyperparameters
-                    clf = svm.SVC(kernel=k, probability=p, gamma=g, tol=t)
+                    clf = svm.SVC(kernel=k, probability=p, tol=t)
                     score = parser.score(clf, data, labels)
+                    print("scored svm")
+                    score = parser.convert_to_FP_FN(labels, score[0], score[1])
+                    print("FP: %f\tFN: %f" % (score[0],score[1]))
 
                     # keep track of paretofront
-                    ind = [score, (k,p,t,g)]
-                    front = parser.update_front(front, ind, parser.pareto_dominance_pre_rec)
+                    ind = [score, (k,p,t)]
+                    front = parser.update_front(front, ind, parser.pareto_dominance_min)
 
                     # document performance
-                    print("Params\nk: %s\tp: %s\tt: %f\tg: %f" % (k, p, t, g))
-                    print("Score: %f" % (score))
+                    print("FP: %f\tFN: %f" % (score[0],score[1]))
                     print("*********************************************")
 
                     # update graph
-                    parser.update_graph(fig, ax, front, x, y)
-
-                    # only change gamma if it is relavent (SVM specific)
-                    if gam_irrelevant:
-                        break
+                    parser.update_graph(fig, sc, front)
 
         # stops graph from closing until manually closed
         plt.waitforbuttonpress()
