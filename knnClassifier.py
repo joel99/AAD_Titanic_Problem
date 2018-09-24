@@ -6,7 +6,6 @@ def find_best_knn(data, labels):
     neighbors = list(range(1,50))
     (fig, sc) = parser.init_graph()
     front = []
-    ind = 0
     for k in neighbors:
         knn = KNeighborsClassifier(n_neighbors=k)
         scores = parser.score(knn, data, labels)
@@ -14,13 +13,8 @@ def find_best_knn(data, labels):
         score = parser.convert_to_FP_FN(labels, precision, recall)
         individual = [score, [k]]
         front = parser.update_front(front, individual, parser.pareto_dominance_min)
-        ind+=1
-
         parser.update_graph(fig, sc, front)
-    try:
-        plt.waitforbuttonpress()
-    except:
-        print("Done")
+
     return generate_KNN_front(front)
 
 def generate_KNN_front(front):
