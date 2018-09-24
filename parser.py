@@ -193,3 +193,23 @@ def update_graph(fig, sc, front, x, y):
     sc.set_offsets(np.c_[x, y])
     fig.canvas.draw_idle()
     plt.pause(0.1)
+
+def convert_to_FP_FN(labels, precision, recall):
+    """
+    converts form precision and recall to FP and FN.
+    Since Recall = TP/(TP + FN), TP = Recall * Positives
+    This means we can solve for FN & FP with
+    FN = TP/Recall - TP
+    FP = TP/Precision - TP
+
+    :param labels: the list of numeric labels that the precision and recall metrics came from
+    :param precision: the precision of some classifier on the given labels
+    :param recall: the recall of some classifier on the given labels
+    :return: a tuple containing FP and FN in that order
+    """
+    positives = sum([1 for l in labels if l is 1])
+    tp = recall * positives
+    fn = tp / recall - tp
+    fp = tp / precision - tp
+
+    return (fp, fn)
