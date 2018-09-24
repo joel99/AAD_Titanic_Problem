@@ -74,12 +74,12 @@ def score(clf, data, labels):
     :return: a tuple of the precision and recall scores for the given classifier
     """
 
-    precision = cross_val_score(clf.classifier, data, labels, scoring=precision_score)
-    recall = cross_val_score(clf.classifier, data, labels, scoring=recall_score)
+    precision = cross_val_score(clf, data, labels, scoring=precision_score)
+    recall = cross_val_score(clf, data, labels, scoring=recall_score)
     precision = sum(precision) / len(precision)
     recall = sum(recall) / len(recall)
 
-    return (precision, recall)
+    return (precision, recall) 
 
 def pareto_dominance_max(ind1, ind2):
     """
