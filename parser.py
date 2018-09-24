@@ -37,6 +37,7 @@ def load_split_all():
     le.fit(["male", "female"])
     train_data[:, 4] = le.transform(train_data[:, 4])
     test_data[:, 3] = le.transform(test_data[:, 3])
+
     # Convert embark column (col 11)
     # le.fit(["S", "C", "Q", None])
     # print(train_data[:, 11])
@@ -48,10 +49,11 @@ def load_split_all():
     # As we're unsure about cabin_number domain effect, we're just dropping it
     # Dropping embark since we think it's not too helpful, and has NaN
     train_data = np.delete(train_data, [0, 3, 8, 10, 11], axis = 1)
-    test_data = np.delete(train_data, [0, 2, 7, 9, 10], axis = 1)
-    
+    test_data = np.delete(test_data, [0, 2, 7, 9, 10], axis = 1)
+
     # Fill in NaN
     train_data = np.where(pd.isnull(train_data), -1, train_data)
+    # test_data = np.where(pd.isnull(test_data), -1, test_data)
     x_test = np.where(pd.isnull(test_data), -1, test_data)
     y_test = test_labels
 
@@ -72,9 +74,9 @@ def score(clf, data, labels):
     """
 
     precision = cross_val_score(clf, data, labels, scoring='precision', cv=5, n_jobs=-1)
-    print("Precision: %f" %precision[0])
+    # print("Precision: %f" %precision[0])
     recall = cross_val_score(clf, data, labels, scoring='recall', cv=5, n_jobs=-1)
-    print("Recall: %f" %recall[0])
+    # print("Recall: %f" %recall[0])
     precision = sum(precision) / len(precision)
     recall = sum(recall) / len(recall)
 
@@ -91,7 +93,7 @@ def pareto_dominance_max(ind1, ind2):
 
     not_equal = False
     for value_1, value_2 in zip(ind1.fitness.values, ind2.fitness.values):
-        if value_1 > value_2:
+        if value_1 < value_2:
             return False
         elif value_1 > value_2:
             not_equal = True
@@ -108,7 +110,7 @@ def pareto_dominance_min(ind1, ind2):
 
     not_equal = False
     for value_1, value_2 in zip(ind1, ind2):
-        if value_1 < value_2:
+        if value_1 > value_2:
             return False
         elif value_1 < value_2:
             not_equal = True
@@ -157,10 +159,10 @@ def init_graph():
     """
     plt.ion()
     fig, ax = plt.subplots()
-    x, y = [1], [1]
+    x, y = [], []
     sc = ax.scatter(x, y)
-    plt.xlim(0.0, 1.0)
-    plt.ylim(0.0, 1.0)
+    plt.xlim(0.0, 900.0)
+    plt.ylim(0.0, 900.0)
     plt.xlabel('Precision')
     plt.ylabel('Recall')
 
@@ -183,6 +185,7 @@ def update_graph(fig, sc, front):
 
     points = [[ind[0][0], ind[0][1]] for ind in front]
     sc.set_offsets(points)
+
     fig.canvas.draw_idle()
     plt.pause(0.1)
 
@@ -199,9 +202,8 @@ def convert_to_FP_FN(labels, precision, recall):
     :param recall: the recall of some classifier on the given labels
     :return: a tuple containing FP and FN in that order
     """
-    positives = sum([1 for l in labels if l is 1])
+    positives = sum([1 for l in labels if l == 1])
     tp = recall * positives
     fn = tp / recall - tp
     fp = tp / precision - tp
-
     return (fp, fn)
