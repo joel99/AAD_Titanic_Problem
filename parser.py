@@ -72,11 +72,9 @@ def score(clf, data, labels):
     """
 
     precision = cross_val_score(clf, data, labels, scoring='precision', cv=5, n_jobs=-1)
-    print("Precision: %f" %precision[0])
     recall = cross_val_score(clf, data, labels, scoring='recall', cv=5, n_jobs=-1)
-    print("Recall: %f" %recall[0])
-    precision = sum(precision) / len(precision)
-    recall = sum(recall) / len(recall)
+    precision = precision.mean()
+    recall = recall.mean()
 
     return (precision, recall)
 
@@ -90,7 +88,7 @@ def pareto_dominance_max(ind1, ind2):
     """
 
     not_equal = False
-    for value_1, value_2 in zip(ind1.fitness.values, ind2.fitness.values):
+    for value_1, value_2 in zip(ind1, ind2):
         if value_1 > value_2:
             return False
         elif value_1 > value_2:
@@ -101,8 +99,8 @@ def pareto_dominance_min(ind1, ind2):
     """
     returns true if ind1 dominates ind2 by the metrics that should be minimized
 
-    :param ind1: tuple of precision and recall scores
-    :param ind2: tuple of precision and recall scores
+    :param ind1: tuple of FP and FN
+    :param ind2: tuple of FP and FN
     :return: boolean representing if ind1 dominates ind2 using the metrics that should be minimized
     """
 
@@ -127,7 +125,8 @@ def update_front(front, ind, comp):
     :return: the new pareto front
     """
 
-    all = front + [ind]
+    front.append(ind)
+    all = front
 
     front = []
     for ind1 in all:
@@ -157,15 +156,14 @@ def init_graph():
     """
     plt.ion()
     fig, ax = plt.subplots()
-    x, y = [1], [1]
+    x, y = [], []
     sc = ax.scatter(x, y)
-    plt.xlim(0.0, 1.0)
-    plt.ylim(0.0, 1.0)
-    plt.xlabel('Precision')
-    plt.ylabel('Recall')
+    plt.xlim(0.0, 900)
+    plt.ylim(0.0, 900)
+    plt.xlabel('False Positives')
+    plt.ylabel('False Negatives')
 
     plt.draw()
-    #plt.show()
     return (fig, sc)
 
 def update_graph(fig, sc, front):
@@ -199,7 +197,7 @@ def convert_to_FP_FN(labels, precision, recall):
     :param recall: the recall of some classifier on the given labels
     :return: a tuple containing FP and FN in that order
     """
-    positives = sum([1 for l in labels if l is 1])
+    positives = sum([1 for l in labels if l == 1])
     tp = recall * positives
     fn = tp / recall - tp
     fp = tp / precision - tp

@@ -9,6 +9,6 @@ def main():
     test_x, test_y = test
     #best_rf = rfClassifier.find_best_rf(train_x, train_y)
     svm_front = svm.find_best_SVM(train_x, train_y)
-    #best_knn = knnClassifier.find_best_knn(train_x, train_y)
+    best_knn = knnClassifier.find_best_knn(train_x, train_y)
 
 main()
