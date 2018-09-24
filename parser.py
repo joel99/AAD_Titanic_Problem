@@ -10,9 +10,9 @@ Joel Ye
 """
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, KFold
 from sklearn.preprocessing import LabelEncoder
-import matplotlib.pyplot as plt
+
 data_dir = 'data/'
 train_fn = 'train.csv'
 test_fn = 'test.csv'
@@ -72,8 +72,8 @@ def score(clf, data, labels):
     :param labels: the correct labels that match with the given data
     :return: a tuple of the precision and recall scores for the given classifier
     """
-
-    precision = cross_val_score(clf, data, labels, scoring='precision', cv=5, n_jobs=-1)
+    kf = KFold(shuffle=False, random_state=0)
+    precision = cross_val_score(clf, data, labels, scoring='precision', cv=kf, n_jobs=-1)
 
     recall = cross_val_score(clf, data, labels, scoring='recall', cv=5, n_jobs=-1)
     precision = precision.mean()
@@ -144,46 +144,6 @@ def update_front(front, ind, comp):
     else:
         newFront.append(ind)
     return newFront
-
-def init_graph():
-    """
-    Creates a matplotlib.pyplot scatter graph that can be continuously updated as new pareto fronts are made
-
-    :param Fig: the figure being displayed
-    :param Sc: the scatterplot displayed on the graph
-    :return: a list of variables needed to update the graph.
-    """
-    plt.ion()
-    fig, ax = plt.subplots()
-    x, y = [], []
-    sc = ax.scatter(x, y)
-
-    plt.xlim(0.0, 900)
-    plt.ylim(0.0, 900)
-    plt.xlabel('False Positives')
-    plt.ylabel('False Negatives')
-
-    plt.draw()
-    return (fig, sc)
-
-def update_graph(fig, sc, front):
-    """
-    updates the given figure to display the given pareto front
-
-    :param fig: the figure being displayed
-    :param sc: the scatter plot associated with the figure
-    :param front: the list of individuals being graphed.
-                  In this context an individual consists of scores and their hyper parameters.
-                  For example ind[0] is a tuple of precision and recall scores
-                  and ind[1] is a list of the hyper-parameters needed to recreate the classifier
-    :return:
-    """
-
-    points = [[ind[0][0], ind[0][1]] for ind in front]
-    sc.set_offsets(points)
-
-    fig.canvas.draw_idle()
-    plt.pause(0.1)
 
 def convert_to_FP_FN(labels, precision, recall):
     """
