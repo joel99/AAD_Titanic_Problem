@@ -17,7 +17,6 @@ def get_fp_fn(clf, train, test):
     preds = clf.predict(x_test)
     fp = sum([1 for i in range(len(preds)) if preds[i] == 1 and y_test[i][1] == 0])
     fn = sum([1 for i in range(len(preds)) if preds[i] == 0 and y_test[i][1] == 1])
-    print("Total length=" + str(len(y_test)))
     return (fp, fn)
 
 def main():
@@ -56,7 +55,11 @@ def main():
     print(svm_scores)
     print(knn_scores)
     print(gnb_scores)
-    
+    # Sort scores so they display pseudo HoF
+    rf_scores = rf_scores[np.argsort(rf_scores[:, 0])]
+    svm_scores = svm_scores[np.argsort(svm_scores[:, 0])]
+    knn_scores = knn_scores[np.argsort(knn_scores[:, 0])]
+
     fig, ax = plt.subplots()
     ax.set_title("Titanic Pareto Fronts")
     ax.plot(rf_scores[:,0], rf_scores[:,1], c='b', marker='o', markersize='12', label='RF')
