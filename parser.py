@@ -106,13 +106,12 @@ def pareto_dominance_min(ind1, ind2):
     :param ind2: tuple of FP and FN
     :return: boolean representing if ind1 dominates ind2 using the metrics that should be minimized
     """
-
     not_equal = False
     for value_1, value_2 in zip(ind1, ind2):
         if value_1 > value_2:
             return False
         elif value_1 < value_2:
-            not_equal = True
+            not_equal = True    
     return not_equal
 
 def update_front(front, ind, comp):
@@ -128,30 +127,27 @@ def update_front(front, ind, comp):
     :return: the new pareto front
     """
 
-    front.append(ind)
-    all = front
-
-    front = []
-    for ind1 in all:
-        pareto = True
-        for ind2 in front:
-            if comp(ind2[0],ind1[0]):
-                # ind1 cannot belong on the pareto front
-                pareto = False
-                break
-            elif comp(ind1[0],ind2[0]):
-                #ind1 belongs on pareto front and ind2 does not
-                front.remove(ind2)
-        if pareto:
-            front += [ind1]
-    return front
+    # A member belongs on the front if it dominates or is not dominated by new ind
+    # New ind belongs on front if it is not dominated by any
+    # If new ind dominated, rest of front won't be dominated
+    newFront = []
+    isNewDominated = False
+    for i in range(len(front)):
+        old = front[i]
+        if comp(old[0], ind[0]): # Careful to compare the scores
+            isNewDominated = True
+            break
+        if not comp(ind[0], old[0]):
+            newFront.append(old)
+    if isNewDominated:
+        newFront.extend(front[i:]) # add rest of old front
+    else:
+        newFront.append(ind)
+    return newFront
 
 def init_graph():
     """
-    Creates a matplotlib.pyplot scatter graph that can be continuously updated
-    as new pareto fronts are made
-    ues the plt.waitforbuttonpress() method to keep the graph displayed
-    after it is finished being updated
+    Creates a matplotlib.pyplot scatter graph that can be continuously updated as new pareto fronts are made
 
     :param Fig: the figure being displayed
     :param Sc: the scatterplot displayed on the graph
@@ -203,8 +199,7 @@ def convert_to_FP_FN(labels, precision, recall):
     :return: a tuple containing FP and FN in that order
     """
     positives = sum([1 for l in labels if l == 1])
-    tp = recall * positives
-    fn = tp / recall - tp
-    fp = tp / precision - tp
-
+    tp = int(recall * positives)
+    fn = int(tp / recall) - tp
+    fp = int(tp / precision) - tp
     return (fp, fn)

@@ -3,27 +3,25 @@ from matplotlib import pyplot as plt
 from sklearn import svm
 
 def find_best_SVM(data, labels):
+    print("Searching for best SVM")
     clf = svm.SVC()
-    (fig, sc) = parser.init_graph()
+    # (fig, sc) = parser.init_graph()
 
     # param tuning SVM specific 192 - 5 = 187 combinations
-    #kernels = ['linear','poly', 'rbf', 'sigmoid']
+    # kernels = ['linear','poly', 'rbf', 'sigmoid']
     kernels = ['rbf']
     probabilities = [False, True]
     #probabilities=[False]
     tols = [0.00001, 0.0001, 0.001, 0.01]
     #tols = [0.001]
-    folds = 5
 
     front = []  # list of best scores & params
-
-    print("starting svm search")
 
     # block searching for best parameters based on cross validation
     for k in kernels:
         for p in probabilities:
             for t in tols:
-                print("Params\nk: %s\tp: %s\tt: %f" % (k, p, t))
+                # print("Params\nk: %s\tp: %s\tt: %f" % (k, p, t))
 
                 #create and score classifier with given hyperparameters
                 clf = svm.SVC(kernel=k, probability=p, tol=t)
@@ -35,16 +33,10 @@ def find_best_SVM(data, labels):
                 front = parser.update_front(front, ind, parser.pareto_dominance_min)
 
                 # document performance
-                print("FP: %f\tFN: %f" % (score[0],score[1]))
-                print("*********************************************")
+                # print("FP: %f\tFN: %f" % (score[0],score[1]))
+                # print("*********************************************")
 
-                parser.update_graph(fig, sc, front)
-
-    ''' # stops graph from closing until manually closed
-    try:
-        plt.waitforbuttonpress()
-    except:
-        print("Graph Closed")'''
+                # parser.update_graph(fig, sc, front)
 
         # return pareto front classifiers
     return generate_SVM_front(front)

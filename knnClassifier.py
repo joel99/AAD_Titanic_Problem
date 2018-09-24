@@ -1,10 +1,10 @@
 from sklearn.neighbors import KNeighborsClassifier
-import matplotlib.pyplot as plt
 import parser
 
 def find_best_knn(data, labels):
+    print("Searching for best knn")
     neighbors = list(range(1,50))
-    (fig, sc) = parser.init_graph()
+    # (fig, sc) = parser.init_graph()
     front = []
     for k in neighbors:
         knn = KNeighborsClassifier(n_neighbors=k)
@@ -13,7 +13,7 @@ def find_best_knn(data, labels):
         score = parser.convert_to_FP_FN(labels, precision, recall)
         individual = [score, [k]]
         front = parser.update_front(front, individual, parser.pareto_dominance_min)
-        parser.update_graph(fig, sc, front)
+        # parser.update_graph(fig, sc, front)
 
     return generate_KNN_front(front)
 
