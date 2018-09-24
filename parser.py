@@ -35,7 +35,6 @@ def load_split_all():
     # Note test data has different data order
     # Convert sex column (col 4)
     le.fit(["male", "female"])
-    print("Test orig: %f\tTrain: %f" %(len(test_data[0]), len(train_data[0])))
     train_data[:, 4] = le.transform(train_data[:, 4])
     test_data[:, 3] = le.transform(test_data[:, 3])
 
@@ -49,22 +48,18 @@ def load_split_all():
     # Trim passenger_id (c0), name (c3), ticket number (c8), cabin number (c10)
     # As we're unsure about cabin_number domain effect, we're just dropping it
     # Dropping embark since we think it's not too helpful, and has NaN
-    print("Test MF: %f\tTrain: %f" %(len(test_data[0]), len(train_data[0])))
     train_data = np.delete(train_data, [0, 3, 8, 10, 11], axis = 1)
     test_data = np.delete(test_data, [0, 2, 7, 9, 10], axis = 1)
-    
+
     # Fill in NaN
-    print("Test DEL: %f\tTrain: %f" %(len(test_data[0]), len(train_data[0])))
     train_data = np.where(pd.isnull(train_data), -1, train_data)
     # test_data = np.where(pd.isnull(test_data), -1, test_data)
     x_test = np.where(pd.isnull(test_data), -1, test_data)
     y_test = test_labels
 
     # Separate train_data into x and y
-    print("Test Null: %f\tTrain: %f" %(len(x_test[0]), len(train_data[0])))
     x_train = train_data[:, 1:].astype('float')
     y_train = train_data[:, 0].astype('int')
-    print("Test Final: %f\tTrain: %f" %(len(x_test[0]), len(x_train[0])))
     return ((x_train, y_train), (x_test, y_test))
 
 

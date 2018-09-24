@@ -12,12 +12,9 @@ def find_best_knn(data, labels):
         scores = parser.score(knn, data, labels)
         precision, recall = scores
         score = parser.convert_to_FP_FN(labels, precision, recall)
-        print "FP_FN scores:", score
         individual = [score, [k]]
         front = parser.update_front(front, individual, parser.pareto_dominance_min)
-        print len(front)
         ind+=1
-        print ind
 
         parser.update_graph(fig, sc, front)
     try:
