@@ -1,4 +1,3 @@
-from classifier import Classifier
 import parser
 from matplotlib import pyplot as plt
 from sklearn import svm
