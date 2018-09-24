@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 """
 AAD - Titanic Dataset Paretodominance Demo
 Data Parser Driver
@@ -74,11 +74,10 @@ def score(clf, data, labels):
     """
 
     precision = cross_val_score(clf, data, labels, scoring='precision', cv=5, n_jobs=-1)
-    # print("Precision: %f" %precision[0])
+
     recall = cross_val_score(clf, data, labels, scoring='recall', cv=5, n_jobs=-1)
-    # print("Recall: %f" %recall[0])
-    precision = sum(precision) / len(precision)
-    recall = sum(recall) / len(recall)
+    precision = precision.mean()
+    recall = recall.mean()
 
     return (precision, recall)
 
@@ -103,8 +102,8 @@ def pareto_dominance_min(ind1, ind2):
     """
     returns true if ind1 dominates ind2 by the metrics that should be minimized
 
-    :param ind1: tuple of precision and recall scores
-    :param ind2: tuple of precision and recall scores
+    :param ind1: tuple of FP and FN
+    :param ind2: tuple of FP and FN
     :return: boolean representing if ind1 dominates ind2 using the metrics that should be minimized
     """
 
@@ -129,7 +128,8 @@ def update_front(front, ind, comp):
     :return: the new pareto front
     """
 
-    all = front + [ind]
+    front.append(ind)
+    all = front
 
     front = []
     for ind1 in all:
@@ -161,13 +161,13 @@ def init_graph():
     fig, ax = plt.subplots()
     x, y = [], []
     sc = ax.scatter(x, y)
-    plt.xlim(0.0, 900.0)
-    plt.ylim(0.0, 900.0)
-    plt.xlabel('Precision')
-    plt.ylabel('Recall')
+
+    plt.xlim(0.0, 900)
+    plt.ylim(0.0, 900)
+    plt.xlabel('False Positives')
+    plt.ylabel('False Negatives')
 
     plt.draw()
-    #plt.show()
     return (fig, sc)
 
 def update_graph(fig, sc, front):
@@ -206,4 +206,5 @@ def convert_to_FP_FN(labels, precision, recall):
     tp = recall * positives
     fn = tp / recall - tp
     fp = tp / precision - tp
+
     return (fp, fn)

@@ -7,5 +7,3 @@ def gaussianNB():
     x, y = load_split_all()
     print(cross_val_score(classifier, x, y))
     return classifier
-
-gaussianNB()

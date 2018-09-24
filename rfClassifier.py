@@ -6,6 +6,7 @@ Random Forest Model
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_score, recall_score, make_scorer
 from sklearn.model_selection import cross_val_score
+import parser
 
 def random_forest_test():
     clf = RandomForestClassifier(max_depth=5, random_state=0)
@@ -20,31 +21,36 @@ def find_best_rf(data, labels):
     # RF Hyperparams
     n_trees = range(5, 20)
     max_depth = range(3, 7)
+    (fig, sc) = parser.init_graph()
 
-    best = [n_trees[0], max_depth[0]]  # list of best params
+
+    front = []
     hyperparams = (n_trees, max_depth)
 
     maxScore = -1
     for h1 in hyperparams[0]:
         for h2 in hyperparams[1]:
             clf = RandomForestClassifier(n_estimators=h1, max_depth=h2)
-            precision = cross_val_score(clf, data, labels, scoring=make_scorer(precision_score)).mean()
-            recall = cross_val_score(clf, data, labels, scoring=make_scorer(recall_score)).mean()
+            score = parser.score(clf, data, labels)
+            score = parser.convert_to_FP_FN(labels, score[0], score[1])
 
-            # TODO: track pareto front
-            # Let's say I'm going for max precision
-            score = precision
-            # score = (recall + precision) / 2
+            ind = [score, (h1, h2)]
+            front = parser.update_front(front, ind, parser.pareto_dominance_min)
 
-            # keep track of best hyperparameters
-            if score > maxScore:
-                maxScore = score
-                best = [h1, h2]
-                
+            parser.update_graph(fig, sc, front)
+
             # Document performance
             print("Params\nn_trees: %d\tmax_depth: %d" % (h1, h2))
-            print("Precision: %f\tRecall: %f" % (precision, recall))
+            print("Precision: %f\tRecall: %f" % (score[0], score[1]))
             print("*********************************************")
-    print("Best Score: %f" % maxScore)
-    print("Best Params: Trees=%d, Depth=%d" % (best[0], best[1]))
-    return RandomForestClassifier(n_estimators=best[0], max_depth=best[1])
+    return generate_RF_front(front)
+
+def generate_RF_front(front):
+    # implements svms for each point on the pareto front
+    # returns a list of SVMs
+    models = []
+    for ind in front:
+        clf = RandomForestClassifier(n_estimators=ind[1][0], max_depth=ind[1][1])
+        models += [clf]
+    return models
+
