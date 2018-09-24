@@ -1,22 +1,24 @@
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
-import numpy as np
 import parser
 
 def find_best_knn(data, labels):
     neighbors = list(range(1,50))
     (fig, sc) = parser.init_graph()
     front = []
+    ind = 0
     for k in neighbors:
         knn = KNeighborsClassifier(n_neighbors=k)
-        scores = parser.scores(knn, data, labels)
+        scores = parser.score(knn, data, labels)
         precision, recall = scores
         score = parser.convert_to_FP_FN(labels, precision, recall)
-        individual = [score, (k)]
+        print "FP_FN scores:", score
+        individual = [score, [k]]
         front = parser.update_front(front, individual, parser.pareto_dominance_min)
+        print len(front)
+        ind+=1
+        print ind
+
         parser.update_graph(fig, sc, front)
     try:
         plt.waitforbuttonpress()

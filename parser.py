@@ -38,6 +38,7 @@ def load_split_all():
     print("Test orig: %f\tTrain: %f" %(len(test_data[0]), len(train_data[0])))
     train_data[:, 4] = le.transform(train_data[:, 4])
     test_data[:, 3] = le.transform(test_data[:, 3])
+
     # Convert embark column (col 11)
     # le.fit(["S", "C", "Q", None])
     # print(train_data[:, 11])
@@ -55,6 +56,7 @@ def load_split_all():
     # Fill in NaN
     print("Test DEL: %f\tTrain: %f" %(len(test_data[0]), len(train_data[0])))
     train_data = np.where(pd.isnull(train_data), -1, train_data)
+    # test_data = np.where(pd.isnull(test_data), -1, test_data)
     x_test = np.where(pd.isnull(test_data), -1, test_data)
     y_test = test_labels
 
@@ -77,6 +79,7 @@ def score(clf, data, labels):
     """
 
     precision = cross_val_score(clf, data, labels, scoring='precision', cv=5, n_jobs=-1)
+
     recall = cross_val_score(clf, data, labels, scoring='recall', cv=5, n_jobs=-1)
     precision = precision.mean()
     recall = recall.mean()
@@ -93,8 +96,8 @@ def pareto_dominance_max(ind1, ind2):
     """
 
     not_equal = False
-    for value_1, value_2 in zip(ind1, ind2):
-        if value_1 > value_2:
+    for value_1, value_2 in zip(ind1.fitness.values, ind2.fitness.values):
+        if value_1 < value_2:
             return False
         elif value_1 > value_2:
             not_equal = True
@@ -111,7 +114,7 @@ def pareto_dominance_min(ind1, ind2):
 
     not_equal = False
     for value_1, value_2 in zip(ind1, ind2):
-        if value_1 < value_2:
+        if value_1 > value_2:
             return False
         elif value_1 < value_2:
             not_equal = True
@@ -163,6 +166,7 @@ def init_graph():
     fig, ax = plt.subplots()
     x, y = [], []
     sc = ax.scatter(x, y)
+
     plt.xlim(0.0, 900)
     plt.ylim(0.0, 900)
     plt.xlabel('False Positives')
@@ -186,6 +190,7 @@ def update_graph(fig, sc, front):
 
     points = [[ind[0][0], ind[0][1]] for ind in front]
     sc.set_offsets(points)
+
     fig.canvas.draw_idle()
     plt.pause(0.1)
 
