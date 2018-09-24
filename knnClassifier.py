@@ -4,20 +4,31 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
 import numpy as np
-from parser import load_split_all
+import parser
 
 def find_best_knn(data, labels):
-    x_train, X_test, y_train, Y_test = load_split_all()    
-    cv_scores = []
     neighbors = list(range(1,50))
+    (fig, sc) = parser.init_graph()
+    front = []
     for k in neighbors:
         knn = KNeighborsClassifier(n_neighbors=k)
-        scores = cross_vals_score(clf, data, labels, scoring=make_scorer(precision_score))
-        cv_scores.append(scores.mean())
-    # changing to misclassification error
-    MSE = [1 - x for x in cv_scores]
-    #determining best k
-    optimal_k = neighbors[MSE.index(min(MSE))]
-    
-    return KNeighborsClassifier(n_neighbors=optimal_k)
+        scores = parser.scores(knn, data, labels)
+        precision, recall = scores
+        score = parser.convert_to_FP_FN(labels, precision, recall)
+        individual = [score, (k)]
+        front = parser.update_front(front, individual, parser.pareto_dominance_min)
+        parser.update_graph(fig, sc, front)
+    try:
+        plt.waitforbuttonpress()
+    except:
+        print("Done")
+    return generate_KNN_front(front)
 
+def generate_KNN_front(front):
+    # implements svms for each point on the pareto front
+    # returns a list of SVMs
+    models = []
+    for individual in front:
+        clf = KNeighborsClassifier(n_neighbors = individual[1][0])
+        models += [clf]
+    return models
