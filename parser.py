@@ -11,10 +11,7 @@ Joel Ye
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics import precision_score, recall_score
 from sklearn.preprocessing import LabelEncoder
-from classifier import Classifier
-from rfClassifier import find_best_rf
 import matplotlib.pyplot as plt
 data_dir = 'data/'
 train_fn = 'train.csv'
@@ -74,8 +71,10 @@ def score(clf, data, labels):
     :return: a tuple of the precision and recall scores for the given classifier
     """
 
-    precision = cross_val_score(clf.classifier, data, labels, scoring=precision_score)
-    recall = cross_val_score(clf.classifier, data, labels, scoring=recall_score)
+    precision = cross_val_score(clf, data, labels, scoring='precision', cv=5, n_jobs=-1)
+    print("Precision: %f" %precision[0])
+    recall = cross_val_score(clf, data, labels, scoring='recall', cv=5, n_jobs=-1)
+    print("Recall: %f" %recall[0])
     precision = sum(precision) / len(precision)
     recall = sum(recall) / len(recall)
 
@@ -108,7 +107,7 @@ def pareto_dominance_min(ind1, ind2):
     """
 
     not_equal = False
-    for value_1, value_2 in zip(ind1.fitness.values, ind2.fitness.values):
+    for value_1, value_2 in zip(ind1, ind2):
         if value_1 < value_2:
             return False
         elif value_1 < value_2:
@@ -154,13 +153,11 @@ def init_graph():
 
     :param Fig: the figure being displayed
     :param Sc: the scatterplot displayed on the graph
-    :param X: the list of x-axis coordinates being graphed
-    :param Y: the list of y-axis coordinates being graphed
     :return: a list of variables needed to update the graph.
     """
     plt.ion()
     fig, ax = plt.subplots()
-    x, y = [], []
+    x, y = [1], [1]
     sc = ax.scatter(x, y)
     plt.xlim(0.0, 1.0)
     plt.ylim(0.0, 1.0)
@@ -168,10 +165,10 @@ def init_graph():
     plt.ylabel('Recall')
 
     plt.draw()
-    plt.show()
-    return (fig, sc, x, y)
+    #plt.show()
+    return (fig, sc)
 
-def update_graph(fig, sc, front, x, y):
+def update_graph(fig, sc, front):
     """
     updates the given figure to display the given pareto front
 
@@ -181,16 +178,11 @@ def update_graph(fig, sc, front, x, y):
                   In this context an individual consists of scores and their hyper parameters.
                   For example ind[0] is a tuple of precision and recall scores
                   and ind[1] is a list of the hyper-parameters needed to recreate the classifier
-    :param x: the list of x-axis coordinates associated with the graph
-    :param y: the list of y-axis coordinates associated with the graph
     :return:
     """
 
-    x.clear()
-    y.clear()
-    x.append([ind[0][0] for ind in front])
-    y.append([ind[0][1] for ind in front])
-    sc.set_offsets(np.c_[x, y])
+    points = [[ind[0][0], ind[0][1]] for ind in front]
+    sc.set_offsets(points)
     fig.canvas.draw_idle()
     plt.pause(0.1)
 
