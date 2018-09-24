@@ -20,4 +20,3 @@ def find_best_knn():
     #determining best k
     optimal_k = neighbors[MSE.index(min(MSE))]
     return KNeighborsClassifier(n_neighbors=optimal_k)
-find_best_knn()
