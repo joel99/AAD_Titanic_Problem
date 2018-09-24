@@ -10,9 +10,11 @@ Joel Ye
 """
 import pandas as pd
 import numpy as np
+import csv
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import LabelEncoder
 import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
 data_dir = 'data/'
 train_fn = 'train.csv'
 test_fn = 'test.csv'
@@ -203,3 +205,20 @@ def convert_to_FP_FN(labels, precision, recall):
     fn = int(tp / recall) - tp
     fp = int(tp / precision) - tp
     return (fp, fn)
+
+
+    """    
+    Takes in a classifier and writes predictions to a csv file after 
+    being trained
+    :param clf: classifier
+    :param train_data: training data
+    :param train_label: training label
+    :param test_data: testing data
+    :param clf_name: String of the name of the classifier that you want to make csv of
+    """
+def convert_to_csv(clf, train_data, train_label, test_data, clf_name):
+    clf.fit(train_data, train_label)
+    predictions = np.asarray(clf.predict(test_data))
+    with open(clf_name, 'wb') as myfile:
+        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+        wr.writerow(predictions)
