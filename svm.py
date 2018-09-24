@@ -23,32 +23,31 @@ def find_best_SVM(data, labels):
     for k in kernels:
         for p in probabilities:
             for t in tols:
-                    print("Params\nk: %s\tp: %s\tt: %f" % (k, p, t))
+                print("Params\nk: %s\tp: %s\tt: %f" % (k, p, t))
 
-                    #create and score classifier with given hyperparameters
-                    clf = svm.SVC(kernel=k, probability=p, tol=t)
-                    score = parser.score(clf, data, labels)
-                    score = parser.convert_to_FP_FN(labels, score[0], score[1])
+                #create and score classifier with given hyperparameters
+                clf = svm.SVC(kernel=k, probability=p, tol=t)
+                score = parser.score(clf, data, labels)
+                score = parser.convert_to_FP_FN(labels, score[0], score[1])
 
-                    # keep track of paretofront
-                    ind = [score, (k,p,t)]
-                    front = parser.update_front(front, ind, parser.pareto_dominance_min)
+                # keep track of paretofront
+                ind = [score, (k,p,t)]
+                front = parser.update_front(front, ind, parser.pareto_dominance_min)
 
-                    # document performance
-                    print("FP: %f\tFN: %f" % (score[0],score[1]))
-                    print("*********************************************")
+                # document performance
+                print("FP: %f\tFN: %f" % (score[0],score[1]))
+                print("*********************************************")
 
-                    # update graph
-                    parser.update_graph(fig, sc, front)
+                parser.update_graph(fig, sc, front)
 
-        # stops graph from closing until manually closed
-        try:
-            plt.waitforbuttonpress()
-        except:
-            print("Graph Closed")
+    ''' # stops graph from closing until manually closed
+    try:
+        plt.waitforbuttonpress()
+    except:
+        print("Graph Closed")'''
 
         # return pareto front classifiers
-        return generate_SVM_front(front)
+    return generate_SVM_front(front)
 
 def generate_SVM_front(front):
     # implements svms for each point on the pareto front
