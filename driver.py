@@ -17,6 +17,7 @@ def get_fp_fn(clf, train, test):
     preds = clf.predict(x_test)
     fp = sum([1 for i in range(len(preds)) if preds[i] == 1 and y_test[i][1] == 0])
     fn = sum([1 for i in range(len(preds)) if preds[i] == 0 and y_test[i][1] == 1])
+    print("Total length=" + str(len(y_test)))
     return (fp, fn)
 
 def main():
