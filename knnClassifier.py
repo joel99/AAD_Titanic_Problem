@@ -15,7 +15,8 @@ def find_best_knn(data, labels):
         front = parser.update_front(front, individual, parser.pareto_dominance_min)
         # parser.update_graph(fig, sc, front)
 
-    return generate_KNN_front(front)
+    # return generate_KNN_front(front)
+    return front
 
 def generate_KNN_front(front):
     # implements svms for each point on the pareto front

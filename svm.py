@@ -39,7 +39,8 @@ def find_best_SVM(data, labels):
                 # parser.update_graph(fig, sc, front)
 
         # return pareto front classifiers
-    return generate_SVM_front(front)
+    # return generate_SVM_front(front)
+    return front
 
 def generate_SVM_front(front):
     # implements svms for each point on the pareto front

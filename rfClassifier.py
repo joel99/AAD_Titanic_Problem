@@ -33,7 +33,8 @@ def find_best_rf(data, labels):
             print("Precision: %f\tRecall: %f" % (score[0], score[1]))
             print("*********************************************")
             """
-    return generate_RF_front(front)
+    # return generate_RF_front(front)
+    return front
 
 # Generate RF classifier front, given params
 def generate_RF_front(front):

@@ -50,7 +50,7 @@ def load_split_all():
     # As we're unsure about cabin_number domain effect, we're just dropping it
     # Dropping embark since we think it's not too helpful, and has NaN
     train_data = np.delete(train_data, [0, 3, 8, 10, 11], axis = 1)
-    test_data = np.delete(test_data, [0, 2, 7, 9, 10], axis = 1)
+    test_data = np.delete(test_data, [2, 7, 9, 10], axis = 1)
 
     # Fill in NaN
     train_data = np.where(pd.isnull(train_data), -1, train_data)
@@ -177,7 +177,9 @@ def convert_to_FP_FN(labels, precision, recall):
 """
 def convert_to_csv(clf, train_data, train_label, test_data, clf_name):
     clf.fit(train_data, train_label)
+    id_column = test_data[:, 0]
+    test_data = test_data[:, 1:]
     predictions = np.asarray(clf.predict(test_data))
-    with open(clf_name, 'wb') as myfile:
-        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-        wr.writerow(predictions)
+    final = np.column_stack((id_column, predictions))
+    df = pd.DataFrame(final)
+    df.to_csv(clf_name, index=False, header=["PassengerId", "Survived"])
